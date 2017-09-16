@@ -9,7 +9,7 @@ module.exports = class FlvDemux {
     this.body = new Body();
   }
 
-  decode(buffer) {
+  decode(buffer, size = 0) {
     this.buffer = Buffer.concat([this.buffer, buffer]);
 
     for (;;) {
@@ -34,6 +34,10 @@ module.exports = class FlvDemux {
           }
 
           let body = this.body.decode(this.buffer);
+          if (!body) {
+            return;
+          }
+
           this.state = Header.STATE;
           return;
           break;

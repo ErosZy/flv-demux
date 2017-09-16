@@ -1,4 +1,4 @@
-const Tags = require('../protocols/Tags');
+const Tag = require('./Tag');
 
 module.exports = class Body {
   static get MIN_LENGTH() {
@@ -13,18 +13,18 @@ module.exports = class Body {
     this.tags = [];
   }
 
-  decode(buffer) {
+  decode(buffer, size = 0) {
     for (;;) {
       let tagSize = buffer.readUInt32BE(0);
-      buffer = buffer.slice(4);
-      if (this.buffer < Tags.MIN_LENGTH) {
-        break;
+      let body = buffer.slice(4);
+      if (body.length < Tag.MIN_LENGTH) {
+        return false;
       }
 
-      let tag = new Tags();
-      let body = tag.decode(buffer);
+      let tag = new Tag();
+      body = tag.decode(body);
       if (!body) {
-        break;
+        return false;
       }
 
       this.tags.push(tag);
