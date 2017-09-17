@@ -45,19 +45,21 @@ module.exports = class Tag {
       default:
         throw new Error(`not support tag type(${this.type})`);
     }
-    
+
     buffer = buffer.slice(Tag.MIN_LENGTH);
     let body = this.data.decode(buffer, this.size);
     return !body ? false : body;
   }
 
   toJSON() {
+    let data = this.data;
+    data = data && data.toJSON ? data.toJSON() : null;
     return {
       type: this.type,
       size: this.size,
       timestamp: this.timestamp,
       streamId: this.streamId,
-      data: this.data
+      data: data
     };
   }
 };
