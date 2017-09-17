@@ -1,7 +1,7 @@
 # flv-demux
 
 ## 0. Required
-> node v6-
+> node v6- (depened on buffer-v6-pollify)
 
 ## 1. Support Format
 1. Video: only AVC
