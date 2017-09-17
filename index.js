@@ -1,3 +1,5 @@
+require('./helper/bufferReadUInt24');
+
 const Header = require('./protocols/Header');
 const Body = require('./protocols/Body');
 
@@ -37,9 +39,8 @@ module.exports = class FlvDemux {
           if (!body) {
             return;
           }
-
+          
           this.state = Header.STATE;
-          return;
           break;
         }
       }
