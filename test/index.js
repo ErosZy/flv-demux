@@ -1,5 +1,5 @@
 const fs = require('fs');
-const Demux = require('../index');
+const FlvDemux = require('../index');
 
 start();
 
@@ -12,8 +12,8 @@ function start() {
   console.log('whole data parse start....');
 
   let startTime = +new Date();
-  let demux = new Demux();
-  demux.decode(buf);
+  let decoder = new FlvDemux.Decoder();
+  decoder.decode(buf);
 
   console.log(`time consuming: ${+new Date() - startTime}ms`);
 
@@ -30,13 +30,13 @@ function parseChunkData() {
   console.log('chunk data parse start....');
 
   let startTime = +new Date();
-  let demux = new Demux();
-  demux.decode(buf);
+  let decoder = new FlvDemux.Decoder();
+  decoder.decode(buf);
 
   setTimeout(() => {
     let buf = Buffer.alloc(stat.size - halfSize);
     fs.readSync(fd, buf, 0, stat.size - halfSize, halfSize);
-    demux.decode(buf);
+    decoder.decode(buf);
     console.log('ALL TEST PASSED');
   }, 5000);
 }
