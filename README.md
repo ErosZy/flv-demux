@@ -3,10 +3,14 @@
 ## 0. Required
 > node v6-
 
-## 1. Run Test
+## 1. Support Format
+1. Video: only AVC
+2. Audio: only AAC
+
+## 2. Run Test
 > cd test && node index.js
 
-## 2. How To Use It
+## 3. How To Use It
 ```javascript
     const FlvDemux = require('flv-demux');
     let decoder = new FlvDemux.Decoder();
@@ -37,7 +41,6 @@
     }, 5000);
 ```
 
-## 3. TODO LIST
+## 4. TODO LIST
 1. add browser support
-2. add node v6+ support
-3. improve performance
+2. improve performance furtherly
