@@ -27,7 +27,7 @@ module.exports = class ScriptDataDate {
     this.dateTime = buffer.readDoubleBE(offset);
     this.localDateTimeOffset = buffer.readInt16BE(8 + offset);
 
-    return buffer.slice(ScriptDataDate.MIN_LENGTH + 1);
+    return buffer.slice(ScriptDataDate.MIN_LENGTH + offset);
   }
 
   toJSON() {

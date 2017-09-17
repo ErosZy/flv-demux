@@ -20,6 +20,7 @@ module.exports = class ScriptDataVar {
     buffer = this.varName.decode(buffer);
     this.varData = new ScriptDataValue();
     buffer = this.varData.decode(buffer);
+    
     return buffer;
   }
 

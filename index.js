@@ -1,14 +1,19 @@
 require('./helper/bufferReadUInt24');
 
+const EventEmitter = require('events').EventEmitter;
 const Header = require('./protocols/Header');
 const Body = require('./protocols/Body');
 
-module.exports = class FlvDemux {
+module.exports = class FlvDemux extends EventEmitter {
   constructor() {
+    super();
     this.state = Header.STATE;
     this.buffer = Buffer.alloc(0);
     this.header = new Header();
     this.body = new Body();
+
+    this.header.on('header', this.headerDataHandler.bind(this));
+    this.body.on('tag', this.tagDataHandler.bind(this));
   }
 
   decode(buffer, size = 0) {
@@ -39,11 +44,27 @@ module.exports = class FlvDemux {
           if (!body) {
             return;
           }
-          
-          this.state = Header.STATE;
+
+          this.buffer = body;
           break;
         }
       }
     }
+  }
+
+  destroy() {
+    this.buffer = null;
+    this.state = null;
+    this.header.removeAllListeners();
+    this.body.removeAllListeners();
+    this.removeAllListeners();
+  }
+
+  headerDataHandler(header) {
+    this.emit('header', header);
+  }
+
+  tagDataHandler(tag) {
+    this.emit('tag', tag);
   }
 };

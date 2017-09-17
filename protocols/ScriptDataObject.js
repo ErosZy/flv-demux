@@ -1,18 +1,19 @@
 const ScriptDataString = require('./ScriptDataString');
 const ScriptDataValue = require('./ScriptDataValue');
 
-module.exports = class ScriptDataObject {
+class ScriptDataObject {
   static get MIN_LENGTH() {
     return ScriptDataString.MIN_LENGTH + ScriptDataValue.MIN_LENGTH;
   }
 
-  constructor() {
+  constructor(ignoreTypeCheck = false) {
+    this.ignoreTypeCheck = ignoreTypeCheck;
     this.objectName = '';
     this.objectData = null;
   }
 
   decode(buffer, size = 0) {
-    this.objectName = new ScriptDataString();
+    this.objectName = new ScriptDataString(this.ignoreTypeCheck);
     buffer = this.objectName.decode(buffer);
     this.objectData = new ScriptDataValue();
     buffer = this.objectData.decode(buffer);
@@ -30,4 +31,7 @@ module.exports = class ScriptDataObject {
       objectData
     };
   }
-};
+}
+
+ScriptDataValue.ScriptDataObjectClass = ScriptDataObject;
+module.exports = ScriptDataObject;

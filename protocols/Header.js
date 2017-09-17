@@ -1,4 +1,6 @@
-module.exports = class Header {
+const EventEmitter = require('events').EventEmitter;
+
+module.exports = class Header extends EventEmitter {
   static get MIN_LENGTH() {
     return 9;
   }
@@ -8,6 +10,7 @@ module.exports = class Header {
   }
 
   constructor() {
+    super();
     this.signature = '';
     this.version = 0x01;
     this.hasAudio = false;
@@ -30,16 +33,14 @@ module.exports = class Header {
       return false;
     }
 
-    return buffer.slice(9);
-  }
-
-  toJSON() {
-    return {
+    this.emit('header', {
       signature: this.signature,
       version: this.version,
       hasAudio: this.hasAudio,
       hasVideo: this.hasVideo,
       offset: this.offset
-    };
+    });
+
+    return buffer.slice(9);
   }
 };

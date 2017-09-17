@@ -10,9 +10,11 @@ function start() {
   fs.readSync(fd, buf, 0, stat.size);
 
   console.log('whole data parse start....');
+
   let startTime = +new Date();
   let demux = new Demux();
   demux.decode(buf);
+
   console.log(`time consuming: ${+new Date() - startTime}ms`);
 
   parseChunkData();
@@ -26,6 +28,7 @@ function parseChunkData() {
   fs.readSync(fd, buf, 0, halfSize);
 
   console.log('chunk data parse start....');
+
   let startTime = +new Date();
   let demux = new Demux();
   demux.decode(buf);

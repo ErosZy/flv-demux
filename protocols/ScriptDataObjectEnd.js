@@ -12,9 +12,10 @@ module.exports = class ScriptDataObjectEnd {
   }
 
   decode(buffer, size = 0) {
-    let mark = buffer.readUInt24BE(0) & 0x00ffffff;
+    let mark = buffer.readUInt24BE(0);
     if (mark != ScriptDataObjectEnd.TYPE) {
-      throw new Error(`wrong script data object end mark(${mark})`);
+     this.ended = false;
+     return buffer;
     }
 
     this.ended = true;

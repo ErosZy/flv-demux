@@ -1,16 +1,13 @@
+const EventEmitter = require('events').EventEmitter;
 const Tag = require('./Tag');
 
-module.exports = class Body {
+module.exports = class Body extends EventEmitter {
   static get MIN_LENGTH() {
     return 4;
   }
 
   static get STATE() {
     return 'body';
-  }
-
-  constructor() {
-    this.tags = [];
   }
 
   decode(buffer, size = 0) {
@@ -27,16 +24,10 @@ module.exports = class Body {
         return false;
       }
 
-      this.tags.push(tag);
+      this.emit('tag', tag.toJSON());
       buffer = body;
     }
 
     return buffer;
-  }
-
-  toJSON() {
-    return {
-      tags: this.tags
-    };
   }
 };

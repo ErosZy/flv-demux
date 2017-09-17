@@ -1,10 +1,11 @@
 const ScriptDataString = require('./ScriptDataString');
-const ScriptDataObject = require('./ScriptDataObject');
 const ScriptDataObjectEnd = require('./ScriptDataObjectEnd');
 const ScriptDataVar = require('./ScriptDataVar');
 const ScriptDataVarEnd = require('./ScriptDataVarEnd');
 const ScriptDataDate = require('./ScriptDataDate');
 const ScriptDataLongString = require('./ScriptDataLongString');
+
+let ScriptDataObject = null;
 
 class ScriptDataValue {
   static get MIN_LENGTH() {
@@ -28,6 +29,10 @@ class ScriptDataValue {
     };
   }
 
+  static set ScriptDataObjectClass(iClass) {
+    ScriptDataObject = iClass;
+  }
+
   constructor() {
     this.type = 0x00;
     this.ECMAArrayLength = -1;
@@ -38,7 +43,6 @@ class ScriptDataValue {
   decode(buffer, size = 0) {
     const TYPES = ScriptDataValue.TYPES;
     this.type = buffer.readUInt8(0);
-
     switch (this.type) {
       case TYPES.NUMBER:
         this.value = buffer.readDoubleBE(1);
@@ -54,13 +58,22 @@ class ScriptDataValue {
         buffer = this.value.decode(buffer);
         break;
       case TYPES.OBJECT:
-        this.value = new ScriptDataObject();
-        buffer = this.value.decode(buffer);
+        buffer = buffer.slice(1);
         this.terminator = new ScriptDataObjectEnd();
-        buffer = this.terminator.decode(buffer);
+        for (;;) {
+          this.value = new ScriptDataObject(true);
+          buffer = this.value.decode(buffer);
+
+          buffer = this.terminator.decode(buffer);
+          if (this.terminator.ended) {
+            break;
+          }
+        }
+
         break;
       case TYPES.UNDEFINED:
         this.value = undefined;
+        break;
       case TYPES.NULL:
         buffer = buffer.slice(1);
         break;
@@ -69,18 +82,27 @@ class ScriptDataValue {
         buffer = buffer.slice(3);
         break;
       case TYPES.ECMA_ARRAY:
-      case TYPES.STRICT_ARRAY:
         this.ECMAArrayLength = buffer.readUInt32BE(1);
         this.value = [];
         buffer = buffer.slice(5);
         for (let i = 0, len = this.ECMAArrayLength; i < len; i++) {
-          let item = new ScriptDataVar(ScriptDataValue);
+          let item = new ScriptDataVar();
           buffer = item.decode(buffer);
           this.value.push(item);
         }
 
         this.terminator = new ScriptDataVarEnd();
         buffer = this.terminator.decode(buffer);
+        break;
+      case TYPES.STRICT_ARRAY:
+        let n = buffer.readUInt32BE(1);
+        this.value = [];
+        buffer = buffer.slice(5);
+        for (let i = 0; i < n; i++) {
+          let item = new ScriptDataValue();
+          buffer = item.decode(buffer);
+          this.value.push(item);
+        }
         break;
       case TYPES.DATE:
         this.value = new ScriptDataDate();
@@ -109,7 +131,7 @@ class ScriptDataValue {
 
     let terminator = this.terminator;
     terminator = terminator && terminator.toJSON ? terminator.toJSON() : null;
-    
+
     return {
       type: this.type,
       ECMAArrayLength: this.ECMAArrayLength,
