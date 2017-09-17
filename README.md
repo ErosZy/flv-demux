@@ -36,3 +36,8 @@
         decoder.destroy();
     }, 5000);
 ```
+
+## 3. TODO LIST
+1. add browser support
+2. add node v6+ support
+3. improve performance
