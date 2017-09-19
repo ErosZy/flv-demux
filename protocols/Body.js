@@ -12,6 +12,10 @@ module.exports = class Body extends EventEmitter {
 
   decode(buffer, size = 0) {
     for (;;) {
+      if (buffer.length < Body.MIN_LENGTH) {
+        break;
+      }
+
       let tagSize = buffer.readUInt32BE(0);
       let body = buffer.slice(4);
       if (body.length < Tag.MIN_LENGTH) {
