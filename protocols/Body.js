@@ -11,21 +11,23 @@ module.exports = class Body extends EventEmitter {
   }
 
   decode(buffer, size = 0) {
+    const flvBody = buffer;
+    
     for (;;) {
       if (buffer.length < Body.MIN_LENGTH) {
-        break;
+        return buffer.byteLength === flvBody.byteLength ? false : buffer;
       }
 
       let tagSize = buffer.readUInt32BE(0);
       let body = buffer.slice(4);
       if (body.length < Tag.MIN_LENGTH) {
-        return false;
+        return buffer.byteLength === flvBody.byteLength ? false : buffer;
       }
 
       let tag = new Tag();
       body = tag.decode(body);
       if (!body) {
-        return false;
+        return buffer.byteLength === flvBody.byteLength ? false : buffer;
       }
 
       this.emit('tag', tag.toJSON());
