@@ -1,6 +1,8 @@
 const fs = require('fs');
 const FlvDemux = require('../index');
 
+const UNIT_PREFIX = Buffer.from([0x00, 0x00, 0x00, 0x01]);
+
 start();
 
 function start() {
@@ -20,9 +22,50 @@ function start() {
     );
   });
 
+  let buffer = Buffer.alloc(0);
+  let lengthSizeMinusOne;
   decoder.on('tag', tag => {
     if (tag.type == FlvDemux.VideoTag.TYPE) {
-      if (tag.data.AVCPacketType == 2) {
+      if (tag.data.AVCPacketType == 0) {
+        let unit = tag.data.data;
+        let configurationVersion = unit.readUInt8(0);
+        let AVCProfileIndication = unit.readUInt8(1);
+        let profileCompatibility = unit.readUInt8(2);
+        let AVCLevelIndication = unit.readUInt8(3);
+        lengthSizeMinusOne = (unit.readUInt8(4) & 3) + 1;
+
+        let numOfSequenceParameterSets = unit.readUInt8(5) & 0x1f;
+        let sequenceParameterSetLength = unit.readUInt16BE(6);
+        let sps = unit.slice(8, 8 + sequenceParameterSetLength);
+        let numOfPictureParameterSets = unit.readUInt8(
+          8 + sequenceParameterSetLength
+        );
+        let pictureParameterSetLength = unit.readUInt16BE(
+          8 + sequenceParameterSetLength + 1
+        );
+        let pps = unit.slice(
+          8 + sequenceParameterSetLength + 3,
+          8 + sequenceParameterSetLength + 3 + pictureParameterSetLength
+        );
+        buffer = Buffer.concat([buffer, UNIT_PREFIX, sps, UNIT_PREFIX, pps]);
+      } else if (tag.data.AVCPacketType == 1) {
+        let size = tag.size - 5;
+        let unit = tag.data.data;
+        let tmp = [];
+        while (size) {
+          let NALULength = unit.readUInt32BE(0);
+          let NALU = unit.slice(
+            lengthSizeMinusOne,
+            lengthSizeMinusOne + NALULength
+          );
+          tmp.push(UNIT_PREFIX, NALU);
+          unit = unit.slice(lengthSizeMinusOne + NALULength);
+          size -= lengthSizeMinusOne + NALULength;
+        }
+        tmp = [buffer].concat(tmp);
+        buffer = Buffer.concat(tmp);
+      } else if (tag.data.AVCPacketType == 2) {
+        fs.writeFileSync('../videos/sample.h264', buffer);
         console.log('[I] parse end AVC chunk success');
       }
     }
@@ -32,7 +75,7 @@ function start() {
 
   console.log(`[I] time consuming: ${+new Date() - startTime}ms`);
 
-  parseChunkData();
+  //parseChunkData();
 }
 
 function parseChunkData() {
