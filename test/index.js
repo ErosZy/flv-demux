@@ -3,6 +3,15 @@ const FlvDemux = require('../index');
 
 const UNIT_PREFIX = Buffer.from([0x00, 0x00, 0x00, 0x01]);
 
+let readBufferSize = (buffer, lengthSizeMinusOne, offset) => {
+  let results = 0;
+  for (let i = 0; i < lengthSizeMinusOne; i++) {
+    results |= buffer[offset + i] << ((lengthSizeMinusOne - 1 - i) * 8);
+  }
+
+  return results;
+};
+
 start();
 
 function start() {
@@ -53,7 +62,7 @@ function start() {
         let unit = tag.data.data;
         let tmp = [];
         while (size) {
-          let NALULength = unit.readUInt32BE(0);
+          let NALULength = readBufferSize(unit, lengthSizeMinusOne, 0);
           let NALU = unit.slice(
             lengthSizeMinusOne,
             lengthSizeMinusOne + NALULength
