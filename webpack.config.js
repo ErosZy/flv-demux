@@ -1,7 +1,12 @@
 var getConfig = require('hjs-webpack');
 
-module.exports = getConfig({
+let config = getConfig({
   in: 'index.js',
   out: 'build',
   clearBeforeBuild: true
 });
+
+config.output.library = 'var';
+config.output.libraryTarget = 'umd';
+
+module.exports = config;
