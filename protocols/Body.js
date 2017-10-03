@@ -19,19 +19,28 @@ module.exports = class Body extends EventEmitter {
       let tagSize = buffer.readUInt32BE(0);
       let body = buffer.slice(4);
       if (body.length < Tag.MIN_LENGTH) {
-        return false;
+        return {
+          data: buffer,
+          success: false
+        };
       }
 
       let tag = new Tag();
       body = tag.decode(body);
       if (!body) {
-        return false;
+        return {
+          data: buffer,
+          success: false
+        };
       }
 
       this.emit('tag', tag.toJSON());
       buffer = body;
     }
 
-    return buffer;
+    return {
+      data: buffer,
+      success: true
+    };
   }
 };

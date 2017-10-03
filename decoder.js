@@ -39,11 +39,11 @@ module.exports = class FlvDemux extends EventEmitter {
           }
 
           let body = this.body.decode(this.buffer);
-          if (!body) {
+          this.buffer = body.data;
+          if (!body.success) {
             return;
           }
 
-          this.buffer = body;
           break;
         }
       }
