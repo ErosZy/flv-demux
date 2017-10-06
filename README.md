@@ -40,7 +40,3 @@
         decoder.destroy();
     }, 5000);
 ```
-
-## 4. TODO LIST
-1. add browser support
-2. improve performance furtherly
