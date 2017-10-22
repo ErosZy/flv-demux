@@ -14,6 +14,7 @@ module.exports = class AudioTag {
     this.soundType = 0x01;
     this.AACPacketType = -1;
     this.data = Buffer.alloc(0);
+    this.originBuffer = Buffer.alloc(0);
   }
 
   decode(buffer, size = 0) {
@@ -27,6 +28,7 @@ module.exports = class AudioTag {
     this.soundType = buffer.readUInt8(0) & 1;
     this.AACPacketType = buffer.readUInt8(1);
     this.data = buffer.slice(2, size);
+    this.originBuffer = buffer.slice(0, size);
 
     return buffer.slice(size);
   }

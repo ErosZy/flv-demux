@@ -34,7 +34,11 @@ module.exports = class Body extends EventEmitter {
         };
       }
 
-      this.emit('tag', tag.toJSON());
+      let data = tag.toJSON();
+      let tagSizeBuffer = Buffer.alloc(4);
+      tagSizeBuffer.writeUInt32BE(tagSize);
+      data.tagSizeBuffer = tagSizeBuffer;
+      this.emit('tag', data);
       buffer = body;
     }
 

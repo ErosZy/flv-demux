@@ -13,6 +13,7 @@ module.exports = class VideoTag {
     this.AVCPacketType = 0x01;
     this.compositionTime = 0x00;
     this.data = Buffer.alloc(0);
+    this.originBuffer = Buffer.alloc(0);
   }
 
   decode(buffer, size) {
@@ -25,6 +26,7 @@ module.exports = class VideoTag {
     this.AVCPacketType = buffer.readUInt8(1);
     this.compositionTime = buffer.readInt32BE(2) >> 8;
     this.data = buffer.slice(5, size);
+    this.originBuffer = buffer.slice(0, size);
 
     return buffer.slice(size);
   }

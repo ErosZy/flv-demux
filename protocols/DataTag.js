@@ -12,6 +12,7 @@ module.exports = class DataTag {
 
   constructor() {
     this.buffer = Buffer.alloc(0);
+    this.originBuffer = Buffer.alloc(0);
     this.objects = [];
   }
 
@@ -34,6 +35,7 @@ module.exports = class DataTag {
       this.objects.push(object);
     }
 
+    this.originBuffer = buffer.slice(0, size);
     return buffer.slice(size);
   }
 

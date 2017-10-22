@@ -13,6 +13,7 @@ module.exports = class Tag {
     this.timestamp = 0x00;
     this.streamId = 0x00;
     this.data = null;
+    this.prevBuffer = Buffer.alloc(0);
   }
 
   decode(buffer, size = 0) {
@@ -24,6 +25,7 @@ module.exports = class Tag {
     this.timestamp = (ts1 << 24) | ts0;
 
     this.streamId = buffer.readUInt24BE(8) >> 8;
+    this.prevBuffer = buffer.slice(0, 11);
     if (this.streamId != 0) {
       throw new Error(`stream id must be 0, get(${this.streamId})`);
     }
@@ -53,13 +55,15 @@ module.exports = class Tag {
 
   toJSON() {
     let data = this.data;
+    let originBuffer = Buffer.concat([this.prevBuffer, data.originBuffer]);
     data = data && data.toJSON ? data.toJSON() : null;
     return {
       type: this.type,
       size: this.size,
       timestamp: this.timestamp,
       streamId: this.streamId,
-      data: data
+      data: data,
+      originBuffer: originBuffer
     };
   }
 };

@@ -38,7 +38,8 @@ module.exports = class Header extends EventEmitter {
       version: this.version,
       hasAudio: this.hasAudio,
       hasVideo: this.hasVideo,
-      offset: this.offset
+      offset: this.offset,
+      originBuffer: buffer.slice(0, 9)
     });
 
     return buffer.slice(9);
